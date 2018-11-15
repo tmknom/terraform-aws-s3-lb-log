@@ -1,4 +1,4 @@
-# Terraform module which creates S3 Bucket resources for ALB Access Logs on AWS.
+# Terraform module which creates S3 Bucket resources for Load Balancer Access Logs on AWS.
 #
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html
 
