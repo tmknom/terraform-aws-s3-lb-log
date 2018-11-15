@@ -22,11 +22,30 @@ cd terraform-aws-sample && make install
 
 ## Inputs
 
-Write your Terraform module inputs.
+| Name                                       | Description                                                                                                               |  Type  | Default | Required |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- | :----: | :-----: | :------: |
+| logging_target_bucket                      | The name of the bucket that will receive the log objects.                                                                 | string |    -    |   yes    |
+| name                                       | The name of the bucket, which must comply with DNS naming conventions.                                                    | string |    -    |   yes    |
+| expiration_days                            | Specifies a period in the object's expire.                                                                                | string |  `90`   |    no    |
+| force_destroy                              | A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error. | string | `false` |    no    |
+| glacier_noncurrent_version_transition_days | Specifies when noncurrent object versions transitions.                                                                    | string |  `30`   |    no    |
+| glacier_transition_days                    | Specifies a period in the object's Glacier transitions.                                                                   | string |  `60`   |    no    |
+| lifecycle_rule_enabled                     | Specifies lifecycle rule status.                                                                                          | string | `true`  |    no    |
+| lifecycle_rule_prefix                      | Object key prefix identifying one or more objects to which the rule applies.                                              | string | `` | no |
+| noncurrent_version_expiration_days         | Specifies when noncurrent object versions expire.                                                                         | string |  `60`   |    no    |
+| standard_ia_transition_days                | Specifies a period in the object's STANDARD_IA transitions.                                                               | string |  `30`   |    no    |
+| tags                                       | A mapping of tags to assign to the bucket.                                                                                |  map   |  `{}`   |    no    |
+| versioning_enabled                         | Enable versioning. Versioning is a means of keeping multiple variants of an object in the same bucket.                    | string | `true`  |    no    |
 
 ## Outputs
 
-Write your Terraform module outputs.
+| Name                     | Description                                                            |
+| ------------------------ | ---------------------------------------------------------------------- |
+| s3_bucket_arn            | The ARN of the bucket. Will be of format arn:aws:s3:::bucketname.      |
+| s3_bucket_domain_name    | The bucket domain name. Will be of format bucketname.s3.amazonaws.com. |
+| s3_bucket_hosted_zone_id | The Route 53 Hosted Zone ID for this bucket's region.                  |
+| s3_bucket_id             | The name of the bucket.                                                |
+| s3_bucket_region         | The AWS region this bucket resides in.                                 |
 
 ## Development
 
