@@ -6,6 +6,18 @@
 
 Terraform module which creates S3 Bucket resources for Load Balancer Access Logs on AWS.
 
+## Description
+
+Provision [S3](https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html) bucket
+designed for [Load Balancer Access Logs](https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html).
+This module provides recommended settings.
+
+- Enable Access Logging
+- Enable Default Encryption
+- Enable Versioning
+- Enable Lifecycle Configuration
+- Protected from deletion
+
 ## Usage
 
 ### Minimal
