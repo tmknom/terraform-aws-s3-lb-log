@@ -8,11 +8,40 @@ Terraform module template following [Standard Module Structure](https://www.terr
 
 ## Usage
 
-Named `terraform-<PROVIDER>-<NAME>`. Module repositories must use this three-part name format.
+### Minimal
 
-```sh
-curl -fsSL https://raw.githubusercontent.com/tmknom/terraform-aws-s3-lb-log/master/install | sh -s terraform-aws-sample
-cd terraform-aws-sample && make install
+```hcl
+module "s3_lb_log" {
+  source                = "git::https://github.com/tmknom/terraform-aws-s3-lb-log.git?ref=tags/1.0.0"
+  name                  = "s3-lb-log"
+  logging_target_bucket = "s3-access-log"
+}
+```
+
+### Complete
+
+```hcl
+module "s3_lb_log" {
+  source                = "git::https://github.com/tmknom/terraform-aws-s3-lb-log.git?ref=tags/1.0.0"
+  name                  = "s3-lb-log"
+  logging_target_bucket = "s3-access-log"
+
+  versioning_enabled = false
+  force_destroy      = true
+
+  lifecycle_rule_enabled                     = true
+  lifecycle_rule_prefix                      = ""
+  standard_ia_transition_days                = "60"
+  glacier_transition_days                    = "90"
+  expiration_days                            = "180"
+  glacier_noncurrent_version_transition_days = "60"
+  noncurrent_version_expiration_days         = "90"
+
+  tags = {
+    Environment = "prod"
+    Name        = "s3-lb-log"
+  }
+}
 ```
 
 ## Examples
