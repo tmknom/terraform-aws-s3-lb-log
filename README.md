@@ -4,7 +4,7 @@
 [![GitHub tag](https://img.shields.io/github/tag/tmknom/terraform-aws-s3-lb-log.svg)](https://registry.terraform.io/modules/tmknom/s3-lb-log/aws)
 [![License](https://img.shields.io/github/license/tmknom/terraform-aws-s3-lb-log.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Terraform module template following [Standard Module Structure](https://www.terraform.io/docs/modules/create.html#standard-module-structure).
+Terraform module which creates S3 Bucket resources for Load Balancer Access Logs on AWS.
 
 ## Usage
 
