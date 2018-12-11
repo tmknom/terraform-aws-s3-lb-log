@@ -14,6 +14,9 @@ resource "aws_s3_bucket" "default" {
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules
   bucket = "${var.name}"
 
+  # The AWS region this bucket should reside in. Otherwise, the region used by the callee.
+  region = "${local.bucket_region}"
+
   # S3 access control lists (ACLs) enable you to manage access to buckets and objects.
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html
   acl = "private"
@@ -130,3 +133,11 @@ data "aws_iam_policy_document" "default" {
 
 # https://www.terraform.io/docs/providers/aws/d/elb_service_account.html
 data "aws_elb_service_account" "default" {}
+
+# https://www.terraform.io/docs/providers/aws/d/region.html
+# Get the region of the callee
+data "aws_region" "current" {}
+
+locals {
+  bucket_region = "${var.region == "" ? data.aws_region.current.name : var.region}"
+}
