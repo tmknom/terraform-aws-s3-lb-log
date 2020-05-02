@@ -24,7 +24,7 @@ module "s3_lb_log" {
 
 module "s3_access_log" {
   source  = "tmknom/s3-access-log/aws"
-  version = "1.0.0"
+  version = "2.0.0"
 
   name          = "s3-access-log"
   force_destroy = true
