@@ -24,7 +24,7 @@ This module provides recommended settings.
 
 ```hcl
 module "s3_lb_log" {
-  source                = "git::https://github.com/tmknom/terraform-aws-s3-lb-log.git?ref=tags/1.1.0"
+  source                = "git::https://github.com/tmknom/terraform-aws-s3-lb-log.git?ref=tags/2.0.0"
   name                  = "s3-lb-log"
   logging_target_bucket = "s3-access-log"
 }
@@ -34,15 +34,14 @@ module "s3_lb_log" {
 
 ```hcl
 module "s3_lb_log" {
-  source                = "git::https://github.com/tmknom/terraform-aws-s3-lb-log.git?ref=tags/1.1.0"
+  source                = "git::https://github.com/tmknom/terraform-aws-s3-lb-log.git?ref=tags/2.0.0"
   name                  = "s3-lb-log"
   logging_target_bucket = "s3-access-log"
 
   versioning_enabled = false
   force_destroy      = true
 
-  region = "us-west-1"
-
+  region                                     = "ap-northeast-1"
   lifecycle_rule_enabled                     = true
   lifecycle_rule_prefix                      = ""
   standard_ia_transition_days                = "60"
