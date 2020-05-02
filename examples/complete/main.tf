@@ -1,13 +1,12 @@
 module "s3_lb_log" {
   source                = "../../"
-  name                  = "s3-lb-log"
+  name                  = "s3-lb-log-${random_id.suffix.dec}"
   logging_target_bucket = module.s3_access_log.s3_bucket_id
 
   versioning_enabled = false
   force_destroy      = true
 
-  region = "us-west-1"
-
+  region                                     = "ap-northeast-1"
   lifecycle_rule_enabled                     = true
   lifecycle_rule_prefix                      = ""
   standard_ia_transition_days                = "60"
@@ -26,6 +25,10 @@ module "s3_access_log" {
   source  = "tmknom/s3-access-log/aws"
   version = "2.0.0"
 
-  name          = "s3-access-log"
+  name          = "s3-access-log-${random_id.suffix.dec}"
   force_destroy = true
+}
+
+resource "random_id" "suffix" {
+  byte_length = 8
 }
