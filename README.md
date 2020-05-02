@@ -93,7 +93,7 @@ module "s3_lb_log" {
 
 ## Development
 
-### Requirements
+### Development Requirements
 
 - [Docker](https://www.docker.com/)
 
