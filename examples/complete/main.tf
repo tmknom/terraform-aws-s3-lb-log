@@ -1,7 +1,7 @@
 module "s3_lb_log" {
   source                = "../../"
   name                  = "s3-lb-log"
-  logging_target_bucket = "${module.s3_access_log.s3_bucket_id}"
+  logging_target_bucket = module.s3_access_log.s3_bucket_id
 
   versioning_enabled = false
   force_destroy      = true

@@ -12,10 +12,10 @@ resource "aws_s3_bucket" "default" {
   #   - Bucket names must not contain uppercase characters or underscores.
   #   - Bucket names must start with a lowercase letter or number.
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules
-  bucket = "${var.name}"
+  bucket = var.name
 
   # The AWS region this bucket should reside in. Otherwise, the region used by the callee.
-  region = "${local.bucket_region}"
+  region = local.bucket_region
 
   # S3 access control lists (ACLs) enable you to manage access to buckets and objects.
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html
@@ -24,7 +24,7 @@ resource "aws_s3_bucket" "default" {
   # Server access logging provides detailed records for the requests that are made to a bucket.
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerLogs.html
   logging {
-    target_bucket = "${var.logging_target_bucket}"
+    target_bucket = var.logging_target_bucket
     target_prefix = "logs/${var.name}/"
   }
 
@@ -35,7 +35,7 @@ resource "aws_s3_bucket" "default" {
   # You can, however, suspend versioning on that bucket.
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html
   versioning {
-    enabled = "${var.versioning_enabled}"
+    enabled = var.versioning_enabled
   }
 
   # S3 encrypts your data at the object level as it writes it to disks in its data centers
@@ -55,20 +55,20 @@ resource "aws_s3_bucket" "default" {
   # To manage your objects so that they are stored cost effectively throughout their lifecycle, configure their lifecycle.
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html
   lifecycle_rule {
-    enabled = "${var.lifecycle_rule_enabled}"
-    prefix  = "${var.lifecycle_rule_prefix}"
+    enabled = var.lifecycle_rule_enabled
+    prefix  = var.lifecycle_rule_prefix
 
     # The STANDARD_IA and ONEZONE_IA storage classes are designed for long-lived and infrequently accessed data.
     # https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html#sc-infreq-data-access
     transition {
-      days          = "${var.standard_ia_transition_days}"
+      days          = var.standard_ia_transition_days
       storage_class = "STANDARD_IA"
     }
 
     # The GLACIER storage class is suitable for archiving data where data access is infrequent.
     # https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html#sc-glacier
     transition {
-      days          = "${var.glacier_transition_days}"
+      days          = var.glacier_transition_days
       storage_class = "GLACIER"
     }
 
@@ -79,36 +79,36 @@ resource "aws_s3_bucket" "default" {
     #     S3 removes the expired object delete marker.
     # https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html
     expiration {
-      days = "${var.expiration_days}"
+      days = var.expiration_days
     }
 
     # Specifies when noncurrent objects transition to a specified storage class.
     # https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html#intro-lifecycle-rules-actions
     noncurrent_version_transition {
-      days          = "${var.glacier_noncurrent_version_transition_days}"
+      days          = var.glacier_noncurrent_version_transition_days
       storage_class = "GLACIER"
     }
 
     # Specifies when noncurrent object versions expire.
     # https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html#intro-lifecycle-rules-actions
     noncurrent_version_expiration {
-      days = "${var.noncurrent_version_expiration_days}"
+      days = var.noncurrent_version_expiration_days
     }
   }
 
   # A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error.
   # These objects are not recoverable.
   # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html#force_destroy
-  force_destroy = "${var.force_destroy}"
+  force_destroy = var.force_destroy
 
   # A mapping of tags to assign to the bucket.
-  tags = "${var.tags}"
+  tags = var.tags
 }
 
 # https://www.terraform.io/docs/providers/aws/r/s3_bucket_policy.html
 resource "aws_s3_bucket_policy" "default" {
-  bucket = "${aws_s3_bucket.default.id}"
-  policy = "${data.aws_iam_policy_document.default.json}"
+  bucket = aws_s3_bucket.default.id
+  policy = data.aws_iam_policy_document.default.json
 }
 
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html#access-logging-bucket-permissions
@@ -118,7 +118,7 @@ data "aws_iam_policy_document" "default" {
 
     principals {
       type        = "AWS"
-      identifiers = ["${data.aws_elb_service_account.default.arn}"]
+      identifiers = [data.aws_elb_service_account.default.arn]
     }
 
     actions = [
@@ -139,5 +139,5 @@ data "aws_elb_service_account" "default" {}
 data "aws_region" "current" {}
 
 locals {
-  bucket_region = "${var.region == "" ? data.aws_region.current.name : var.region}"
+  bucket_region = var.region == "" ? data.aws_region.current.name : var.region
 }
