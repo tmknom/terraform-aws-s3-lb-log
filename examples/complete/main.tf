@@ -6,7 +6,6 @@ module "s3_lb_log" {
   versioning_enabled = false
   force_destroy      = true
 
-  region                                     = "ap-northeast-1"
   lifecycle_rule_enabled                     = true
   lifecycle_rule_prefix                      = ""
   standard_ia_transition_days                = "60"
