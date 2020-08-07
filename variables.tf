@@ -67,9 +67,3 @@ variable "tags" {
   default     = {}
   description = "A mapping of tags to assign to the bucket."
 }
-
-variable "region" {
-  type        = string
-  description = "(Optional) If specified, the AWS region this bucket should reside in. Otherwise, the region used by the callee."
-  default     = ""
-}

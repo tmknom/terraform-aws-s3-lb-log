@@ -44,7 +44,6 @@ module "s3_lb_log" {
   versioning_enabled = false
   force_destroy      = true
 
-  region                                     = "ap-northeast-1"
   lifecycle_rule_enabled                     = true
   lifecycle_rule_prefix                      = ""
   standard_ia_transition_days                = "60"
@@ -92,7 +91,6 @@ module "s3_lb_log" {
 | lifecycle_rule_enabled                     | Specifies lifecycle rule status.                                                                                          | `string`      | `true`  |    no    |
 | lifecycle_rule_prefix                      | Object key prefix identifying one or more objects to which the rule applies.                                              | `string`      | `""`    |    no    |
 | noncurrent_version_expiration_days         | Specifies when noncurrent object versions expire.                                                                         | `string`      | `"60"`  |    no    |
-| region                                     | (Optional) If specified, the AWS region this bucket should reside in. Otherwise, the region used by the callee.           | `string`      | `""`    |    no    |
 | standard_ia_transition_days                | Specifies a period in the object's STANDARD_IA transitions.                                                               | `string`      | `"30"`  |    no    |
 | tags                                       | A mapping of tags to assign to the bucket.                                                                                | `map(string)` | `{}`    |    no    |
 | versioning_enabled                         | Enable versioning. Versioning is a means of keeping multiple variants of an object in the same bucket.                    | `string`      | `true`  |    no    |
