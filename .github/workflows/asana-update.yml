@@ -1,0 +1,17 @@
+name: Mark a task complete
+
+on:
+  pull_request:
+    branches: [master]
+    types: [closed]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: everphone-gmbh/github-asana-action@master
+        if: github.event.pull_request.merged
+        with:
+          asana-pat: ${{ secrets.ASANA_PAT }}
+          action: 'complete-task'
+          is-complete: true
