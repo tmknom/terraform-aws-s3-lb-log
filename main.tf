@@ -1,5 +1,4 @@
 # Terraform module which creates S3 Bucket resources for Load Balancer Access Logs on AWS.
-#
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html
 
 # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html
@@ -14,46 +13,80 @@ resource "aws_s3_bucket" "default" {
   # https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html#bucketnamingrules
   bucket = var.name
 
-  # S3 access control lists (ACLs) enable you to manage access to buckets and objects.
-  # https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html
-  acl = "private"
+  # A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error.
+  # These objects are not recoverable.
+  # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html#force_destroy
+  force_destroy = var.force_destroy
 
-  # Server access logging provides detailed records for the requests that are made to a bucket.
-  # https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerLogs.html
-  logging {
-    target_bucket = var.logging_target_bucket
-    target_prefix = "logs/${var.name}/"
-  }
+  # A mapping of tags to assign to the bucket.
+  tags = var.tags
+}
 
-  # Versioning is a means of keeping multiple variants of an object in the same bucket.
-  # Versioning-enabled buckets enable you to recover objects from accidental deletion or overwrite.
-  #
-  # Once you version-enable a bucket, it can never return to an unversioned state.
-  # You can, however, suspend versioning on that bucket.
-  # https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html
-  versioning {
-    enabled = var.versioning_enabled
-  }
+# https://www.terraform.io/docs/providers/aws/r/s3_bucket_policy.html
+resource "aws_s3_bucket_policy" "default" {
+  bucket = aws_s3_bucket.default.id
+  policy = data.aws_iam_policy_document.default.json
+}
 
-  # S3 encrypts your data at the object level as it writes it to disks in its data centers
-  # and decrypts it for you when you access it.
-  # https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html
-  server_side_encryption_configuration {
-    rule {
-      apply_server_side_encryption_by_default {
-        # The objects are encrypted using server-side encryption with either
-        # Amazon S3-managed keys (SSE-S3) or AWS KMS-managed keys (SSE-KMS).
-        # https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html
-        sse_algorithm = "AES256"
-      }
+# S3 access control lists (ACLs) enable you to manage access to buckets and objects.
+# https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html
+resource "aws_s3_bucket_acl" "default" {
+  bucket = aws_s3_bucket.default.id
+  acl    = "private"
+}
+
+# Server access logging provides detailed records for the requests that are made to a bucket.
+# https://docs.aws.amazon.com/AmazonS3/latest/dev/ServerLogs.html
+resource "aws_s3_bucket_logging" "default" {
+  bucket = aws_s3_bucket.default.id
+
+  target_bucket = var.logging_target_bucket
+  target_prefix = "logs/${var.name}/"
+}
+
+# S3 encrypts your data at the object level as it writes it to disks in its data centers
+# and decrypts it for you when you access it.
+# https://docs.aws.amazon.com/AmazonS3/latest/dev/serv-side-encryption.html
+resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
+  bucket = aws_s3_bucket.default.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      # The objects are encrypted using server-side encryption with either
+      # Amazon S3-managed keys (SSE-S3) or AWS KMS-managed keys (SSE-KMS).
+      # https://docs.aws.amazon.com/AmazonS3/latest/dev/bucket-encryption.html
+      sse_algorithm = "AES256"
     }
   }
+}
 
-  # To manage your objects so that they are stored cost effectively throughout their lifecycle, configure their lifecycle.
-  # https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html
-  lifecycle_rule {
-    enabled = var.lifecycle_rule_enabled
-    prefix  = var.lifecycle_rule_prefix
+
+# Versioning is a means of keeping multiple variants of an object in the same bucket.
+# Versioning-enabled buckets enable you to recover objects from accidental deletion or overwrite.
+#
+# Once you version-enable a bucket, it can never return to an unversioned state.
+# You can, however, suspend versioning on that bucket.
+# https://docs.aws.amazon.com/AmazonS3/latest/dev/Versioning.html
+resource "aws_s3_bucket_versioning" "default" {
+  bucket = aws_s3_bucket.default.id
+
+  versioning_configuration {
+    status = var.versioning_enabled ? "Enabled" : "Disabled"
+  }
+}
+
+# To manage your objects so that they are stored cost effectively throughout their lifecycle, configure their lifecycle.
+# https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html
+resource "aws_s3_bucket_lifecycle_configuration" "default" {
+  bucket = aws_s3_bucket.default.id
+
+  rule {
+    id     = "${var.name}-lifecycle"
+    status = var.lifecycle_rule_enabled ? "Enabled" : "Disabled"
+
+    filter {
+      prefix = var.lifecycle_rule_prefix
+    }
 
     # The STANDARD_IA and ONEZONE_IA storage classes are designed for long-lived and infrequently accessed data.
     # https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html#sc-infreq-data-access
@@ -82,30 +115,16 @@ resource "aws_s3_bucket" "default" {
     # Specifies when noncurrent objects transition to a specified storage class.
     # https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html#intro-lifecycle-rules-actions
     noncurrent_version_transition {
-      days          = var.glacier_noncurrent_version_transition_days
-      storage_class = "GLACIER"
+      noncurrent_days = var.glacier_noncurrent_version_transition_days
+      storage_class   = "GLACIER"
     }
 
     # Specifies when noncurrent object versions expire.
     # https://docs.aws.amazon.com/AmazonS3/latest/dev/intro-lifecycle-rules.html#intro-lifecycle-rules-actions
     noncurrent_version_expiration {
-      days = var.noncurrent_version_expiration_days
+      noncurrent_days = var.noncurrent_version_expiration_days
     }
   }
-
-  # A boolean that indicates all objects should be deleted from the bucket so that the bucket can be destroyed without error.
-  # These objects are not recoverable.
-  # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html#force_destroy
-  force_destroy = var.force_destroy
-
-  # A mapping of tags to assign to the bucket.
-  tags = var.tags
-}
-
-# https://www.terraform.io/docs/providers/aws/r/s3_bucket_policy.html
-resource "aws_s3_bucket_policy" "default" {
-  bucket = aws_s3_bucket.default.id
-  policy = data.aws_iam_policy_document.default.json
 }
 
 # https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-access-logs.html#access-logging-bucket-permissions
